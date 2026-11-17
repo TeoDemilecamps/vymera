@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vymera · Explained volatility alerts for young investors</title>
+<meta name="description" content="Vymera MVP: explained volatility alerts, look-through exposure and protection rules for young investors.">
+<style>
+:root{
+  --navy:#1E2263; --ink:#151842; --deep:#0B1250; --green:#6CC201; --green-d:#4E9300;
+  --light:#D2E8F2; --sky:#EAF4F9; --paper:#F6F9FC; --line:#DDE5EE; --muted:#6B7194;
+  --amber:#F2A541; --amber-l:#FDF1DE; --coral:#E4572E; --white:#fff;
+  --r:18px; --shadow:0 6px 24px rgba(21,24,66,.08);
+  --fs:1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  color:var(--ink);background:radial-gradient(1200px 700px at 20% 10%,#1b2a8a 0%,var(--deep) 55%,#060a33 100%);
+  display:flex;align-items:center;justify-content:center;gap:40px;min-height:100vh;padding:24px}
+button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select{font:inherit}
+.hidden{display:none!important}
+
+/* ---------- phone frame ---------- */
+.phone{width:390px;height:844px;background:#000;border-radius:54px;padding:12px;box-shadow:0 30px 80px rgba(0,0,0,.45),0 0 0 2px #2b2f5e;flex-shrink:0;position:relative}
+.screen{width:100%;height:100%;background:var(--paper);border-radius:42px;overflow:hidden;position:relative;display:flex;flex-direction:column;font-size:calc(15px * var(--fs))}
+.statusbar{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;font-size:14px;font-weight:600;flex-shrink:0;color:var(--ink)}
+.statusbar .notch{width:120px;height:30px;background:#000;border-radius:20px;position:absolute;left:50%;transform:translateX(-50%);top:10px}
+.content{flex:1;overflow-y:auto;overflow-x:hidden;padding:4px 18px 110px;scrollbar-width:none}
+.content::-webkit-scrollbar{display:none}
+
+/* ---------- nav ---------- */
+.tabbar{position:absolute;bottom:0;left:0;right:0;height:84px;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:space-around;padding:10px 6px 22px}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:var(--muted);font-weight:600;width:70px;position:relative}
+.tab svg{width:24px;height:24px}
+.tab.active{color:var(--navy)}
+.tab.active svg{stroke:var(--green)}
+.badge{position:absolute;top:-4px;right:14px;background:var(--amber);color:#fff;border-radius:10px;font-size:10px;min-width:17px;height:17px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+
+/* ---------- type & cards ---------- */
+h1{font-size:1.75em;letter-spacing:-.02em;color:var(--navy);line-height:1.15}
+h2{font-size:1.15em;color:var(--navy);letter-spacing:-.01em}
+h3{font-size:1em;color:var(--navy)}
+.eyebrow{font-size:.72em;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700}
+.muted{color:var(--muted)}
+.small{font-size:.85em}
+.xs{font-size:.75em}
+.card{background:#fff;border-radius:var(--r);padding:16px;box-shadow:var(--shadow);margin-top:14px}
+.card.flat{box-shadow:none;border:1px solid var(--line)}
+.row{display:flex;align-items:center;gap:10px}
+.between{justify-content:space-between}
+.stack>*+*{margin-top:8px}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 10px;font-size:.75em;font-weight:700}
+.pill.green{background:#EAF7D6;color:var(--green-d)}
+.pill.amber{background:var(--amber-l);color:#A8620B}
+.pill.navy{background:var(--light);color:var(--navy)}
+.pill.coral{background:#FCE3DB;color:#B23A18}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border-radius:14px;padding:14px 16px;font-weight:700;font-size:1em;transition:transform .08s}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--navy);color:#fff}
+.btn.green{background:var(--green);color:#fff}
+.btn.ghost{background:var(--sky);color:var(--navy)}
+.btn.line{border:1.5px solid var(--line);color:var(--navy);background:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.link{color:var(--navy);font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.divider{height:1px;background:var(--line);margin:12px 0}
+.back{display:inline-flex;align-items:center;gap:4px;color:var(--navy);font-weight:700;margin:6px 0 10px}
+
+/* ---------- home ---------- */
+.hero{background:linear-gradient(135deg,var(--navy),#2a3190);color:#fff;border-radius:22px;padding:18px;margin-top:10px;position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;right:-60px;top:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(108,194,1,.35),transparent 70%)}
+.hero .val{font-size:2.1em;font-weight:800;letter-spacing:-.02em;margin-top:4px}
+.hero .chg{font-weight:700;font-size:.9em;opacity:.95}
+.weather{display:flex;gap:14px;align-items:center}
+.wicon{width:58px;height:58px;border-radius:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.wicon.calm{background:#EAF7D6}.wicon.choppy{background:var(--amber-l)}.wicon.stormy{background:#E4E6F5}
+.meter{height:8px;border-radius:8px;background:linear-gradient(90deg,#B9E57A 0%,#B9E57A 30%,#F7CF8F 30%,#F7CF8F 60%,#9097C9 60%,#9097C9 100%);position:relative;margin:14px 0 4px}
+.meter .knob{position:absolute;top:-5px;width:18px;height:18px;border-radius:50%;background:#fff;border:3px solid var(--navy);transform:translateX(-50%);transition:left .35s}
+.bar{height:10px;background:var(--sky);border-radius:10px;overflow:hidden;position:relative}
+.bar>i{display:block;height:100%;border-radius:10px;background:var(--navy);transition:width .4s}
+.bar .limit{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--coral)}
+.expo{margin-top:12px}
+.expo .lbl{display:flex;justify-content:space-between;font-size:.85em;margin-bottom:5px}
+.holding{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.holding:last-child{border-bottom:none}
+.logo{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.75em;color:#fff;flex-shrink:0}
+.spark{width:100%;height:46px;display:block;margin-top:8px}
+
+/* ---------- alerts ---------- */
+.alert-item{display:flex;gap:12px;align-items:flex-start;padding:14px;border-radius:16px;background:#fff;box-shadow:var(--shadow);margin-top:10px;text-align:left;width:100%}
+.alert-item .dot{width:10px;height:10px;border-radius:50%;background:var(--amber);margin-top:6px;flex-shrink:0}
+.alert-item.read .dot{background:var(--line)}
+.wf{margin-top:10px}
+.wf-row{display:grid;grid-template-columns:118px 1fr 58px;align-items:center;gap:8px;margin:9px 0;font-size:.85em}
+.wf-track{height:22px;position:relative;background:var(--paper);border-radius:6px}
+.wf-track i{position:absolute;right:50%;top:0;bottom:0;border-radius:6px 0 0 6px;background:var(--navy)}
+.wf-track i.pos{left:50%;right:auto;border-radius:0 6px 6px 0;background:var(--green)}
+.wf-track:after{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--muted)}
+.wf-row b{text-align:right}
+.option{border:1.5px solid var(--line);border-radius:16px;padding:14px;margin-top:10px;text-align:left;width:100%;background:#fff;display:block}
+.option.rec{border-color:var(--green);background:#F6FCEE}
+.option.sel{outline:3px solid rgba(108,194,1,.35)}
+.option .t{display:flex;justify-content:space-between;align-items:center;font-weight:800;color:var(--navy)}
+.quote{background:var(--sky);border-radius:14px;padding:12px 14px;font-size:.88em;color:var(--navy);margin-top:10px}
+.sources{font-size:.75em;color:var(--muted);margin-top:10px;line-height:1.5}
+
+/* ---------- rules ---------- */
+.rule{background:#fff;border-radius:16px;padding:14px;box-shadow:var(--shadow);margin-top:10px}
+.switch{width:46px;height:28px;border-radius:20px;background:var(--line);position:relative;transition:.2s;flex-shrink:0}
+.switch:after{content:"";position:absolute;width:22px;height:22px;border-radius:50%;background:#fff;top:3px;left:3px;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.switch.on{background:var(--green)}
+.switch.on:after{left:21px}
+.code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.78em;background:var(--paper);border-radius:10px;padding:10px;color:var(--navy);margin-top:10px;line-height:1.55}
+.field{margin-top:12px}
+.field label{display:block;font-size:.78em;font-weight:700;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
+.field select,.field input{width:100%;padding:12px;border-radius:12px;border:1.5px solid var(--line);background:#fff;color:var(--navy);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:9px 13px;border-radius:999px;border:1.5px solid var(--line);font-weight:700;font-size:.85em;color:var(--navy);background:#fff}
+.chip.on{background:var(--navy);border-color:var(--navy);color:#fff}
+
+/* ---------- learn ---------- */
+.lesson{display:flex;gap:12px;align-items:center;background:#fff;border-radius:16px;padding:14px;box-shadow:var(--shadow);margin-top:10px;width:100%;text-align:left}
+.lesson .em{width:44px;height:44px;border-radius:12px;background:var(--light);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.progress{height:6px;background:var(--line);border-radius:6px;overflow:hidden;margin-top:6px}
+.progress i{display:block;height:100%;background:var(--green)}
+
+/* ---------- onboarding ---------- */
+.ob{display:flex;flex-direction:column;min-height:100%;padding-bottom:20px}
+.ob .grow{flex:1}
+.choice{display:block;width:100%;text-align:left;padding:15px;border-radius:16px;border:1.5px solid var(--line);background:#fff;margin-top:10px;font-weight:700;color:var(--navy)}
+.choice.on{border-color:var(--green);background:#F6FCEE}
+.choice span{display:block;font-weight:500;color:var(--muted);font-size:.85em;margin-top:2px}
+.steps{display:flex;gap:6px;margin:8px 0 18px}
+.steps i{flex:1;height:4px;border-radius:4px;background:var(--line)}
+.steps i.on{background:var(--green)}
+.broker{display:flex;align-items:center;gap:12px;padding:13px;border-radius:16px;border:1.5px solid var(--line);background:#fff;margin-top:10px;width:100%;text-align:left}
+.broker.on{border-color:var(--green);background:#F6FCEE}
+.check{width:24px;height:24px;border-radius:8px;border:2px solid var(--line);margin-left:auto;display:flex;align-items:center;justify-content:center}
+.broker.on .check{background:var(--green);border-color:var(--green)}
+
+/* ---------- sheet & toast ---------- */
+.sheet-bg{position:absolute;inset:0;background:rgba(11,18,80,.45);z-index:20;display:flex;align-items:flex-end;animation:fade .2s}
+.sheet{background:#fff;border-radius:28px 28px 0 0;padding:10px 20px 34px;width:100%;max-height:88%;overflow-y:auto;animation:up .25s ease-out}
+.sheet .grab{width:40px;height:5px;border-radius:5px;background:var(--line);margin:0 auto 14px}
+@keyframes up{from{transform:translateY(40px);opacity:.5}to{transform:none;opacity:1}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.toast{position:absolute;left:14px;right:14px;top:52px;background:var(--ink);color:#fff;border-radius:18px;padding:12px 14px;z-index:40;display:flex;gap:10px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.3);animation:drop .3s ease-out;cursor:pointer}
+.toast .ic{width:34px;height:34px;border-radius:10px;background:var(--green);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:800}
+@keyframes drop{from{transform:translateY(-30px);opacity:0}to{transform:none;opacity:1}}
+.countdown{font-size:2.6em;font-weight:800;color:var(--navy);text-align:center;margin:10px 0}
+
+/* ---------- presenter panel ---------- */
+.panel{width:330px;color:#fff;flex-shrink:0}
+.panel .brand{display:flex;align-items:center;gap:10px;font-size:26px;font-weight:800;letter-spacing:-.02em}
+.panel .tag{opacity:.75;margin-top:6px;font-size:14px;line-height:1.45}
+.panel h4{margin:26px 0 10px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;opacity:.6}
+.scn{display:block;width:100%;text-align:left;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:12px 14px;margin-top:8px;color:#fff;transition:.15s}
+.scn:hover{background:rgba(255,255,255,.13)}
+.scn b{display:block;font-size:14px}
+.scn span{display:block;font-size:12px;opacity:.7;margin-top:2px}
+.scn.active{border-color:var(--green);background:rgba(108,194,1,.15)}
+.mini{background:rgba(255,255,255,.07);border-radius:14px;padding:12px 14px;font-size:12px;line-height:1.6;margin-top:8px;font-family:ui-monospace,Menlo,monospace}
+.mini b{color:var(--green)}
+.panel-toggle{display:none}
+
+@media (max-width:820px){
+  body{padding:0;display:block;background:var(--paper)}
+  .phone{width:100%;height:100vh;height:100dvh;border-radius:0;padding:0;box-shadow:none}
+  .screen{border-radius:0}
+  .statusbar .notch{display:none}
+  .panel{position:fixed;inset:auto 0 0 0;width:100%;background:var(--deep);padding:18px;z-index:100;max-height:70vh;overflow:auto;transform:translateY(100%);transition:.25s}
+  .panel.open{transform:none}
+  .panel-toggle{display:block;position:fixed;right:12px;top:50px;z-index:101;background:var(--deep);color:#fff;border-radius:12px;padding:8px 10px;font-size:12px;font-weight:700;opacity:.85}
+}
+</style>
+</head>
+<body>
+
+<!-- ===================== PHONE ===================== -->
+<div class="phone" role="application" aria-label="Vymera app prototype">
+  <div class="screen" id="screen">
+    <div class="statusbar"><span id="clock">9:41</span><div class="notch"></div><span aria-hidden="true">●●● ▮</span></div>
+    <main class="content" id="view" aria-live="polite"></main>
+    <nav class="tabbar hidden" id="tabbar" aria-label="Main">
+      <button class="tab" data-tab="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
+      <button class="tab" data-tab="alerts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>Alerts<span class="badge hidden" id="badge">1</span></button>
+      <button class="tab" data-tab="rules"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Rules</button>
+      <button class="tab" data-tab="learn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4h7a3 3 0 0 1 3 3v14a2 2 0 0 0-2-2H2z"/><path d="M22 4h-7a3 3 0 0 0-3 3v14a2 2 0 0 1 2-2h8z"/></svg>Learn</button>
+    </nav>
+    <div id="overlay"></div>
+  </div>
+</div>
+
+<!-- ===================== PRESENTER PANEL ===================== -->
+<button class="panel-toggle" id="panelToggle">Demo ▲</button>
+<aside class="panel" id="panel" aria-label="Demo controls">
+  <div class="brand"><svg width="34" height="34" viewBox="0 0 40 40"><rect width="40" height="40" rx="11" fill="#6CC201"/><path d="M10 13l10 16 10-16" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>Vymera</div>
+  <div class="tag">Explained volatility alerts and protection rules for young investors. MVP · live demo controls</div>
+
+  <h4>Demo scenarios</h4>
+  <button class="scn" data-scn="normal"><b>1 · Normal day</b><span>Real VIX from Sept 2026, so the model shows calm</span></button>
+  <button class="scn" data-scn="tech"><b>2 · Tech stock drop</b><span>Nvidia −9.5%, market −2.4%: explained alert</span></button>
+  <button class="scn" data-scn="fx"><b>3 · Dollar swing</b><span>USD −3% vs EUR: currency explained</span></button>
+  <button class="scn" data-scn="tariff"><b>4 · Replay: April 2025 tariff shock</b><span>Real VIX, day by day. Rule triggers</span></button>
+  <button class="scn" data-scn="hype"><b>5 · Hype buy</b><span>TikTok tip: cool-off before buying</span></button>
+  <button class="scn" data-scn="reset"><b>↺ Restart onboarding</b><span>Fresh user, from the first screen</span></button>
+
+  <h4>Model in the browser</h4>
+  <div class="mini" id="modelInfo">loading…</div>
+</aside>
+
+<script>
+/* ==========================================================
+   DATA: produced by ml/vymera_volatility_model.py
+   ========================================================== */
+const MODEL = /*__MODEL__*/null;
+const VIX = /*__VIX__*/null;
+
+/* ==========================================================
+   ML: logistic regression, same features as the Python model
+   ========================================================== */
+function featuresAt(close, high, low, i){
+  const c = close[i];
+  const pct = (k)=> close[i]/close[i-k]-1;
+  const mean = (k)=>{ let s=0; for(let j=i-k+1;j<=i;j++) s+=close[j]; return s/k; };
+  // volatility of volatility: std of daily log changes over 20 days (sample std, like pandas)
+  const lr=[]; for(let j=i-19;j<=i;j++) lr.push(Math.log(close[j]/close[j-1]));
+  const m = lr.reduce((a,b)=>a+b,0)/lr.length;
+  const vv = Math.sqrt(lr.reduce((a,b)=>a+(b-m)**2,0)/(lr.length-1));
+  // percentile rank in last 252 days
+  let cnt=0; for(let j=i-251;j<=i;j++) if(close[j]<=c) cnt++;
+  return {vix:c, log_vix:Math.log(c), chg_1d:pct(1), chg_5d:pct(5), chg_20d:pct(20),
+          ratio_ma20:c/mean(20), ratio_ma60:c/mean(60), volvol_20d:vv,
+          range_pct:(high[i]-low[i])/c, pct_rank_252:cnt/252};
+}
+function predict(f){
+  let z = MODEL.intercept; const contrib={};
+  MODEL.features.forEach((k,j)=>{ const s=(f[k]-MODEL.mean[j])/MODEL.scale[j]; const v=s*MODEL.coef[j]; z+=v; contrib[k]=v; });
+  return {p:1/(1+Math.exp(-z)), contrib};
+}
+function band(p){ return p>=0.6?'stormy':p>=0.3?'choppy':'calm'; }
+const BAND = {
+  calm:{label:'Calm', text:'Markets look steady. No need to check today.', pill:'green'},
+  choppy:{label:'Choppy', text:'Swings are picking up. Normal for markets. We\'ll explain anything that hits you.', pill:'amber'},
+  stormy:{label:'Stormy', text:'High volatility likely in the next 2 weeks. Your rules are ready; nothing happens without you.', pill:'navy'}
+};
+const FEAT_NAMES = {vix:'Fear index level (VIX)',log_vix:'VIX level (log)',chg_1d:'1-day VIX change',chg_5d:'5-day VIX change',chg_20d:'20-day VIX change',ratio_ma20:'VIX vs 20-day average',ratio_ma60:'VIX vs 60-day average',volvol_20d:'How jumpy the VIX is',range_pct:'Intraday swing',pct_rank_252:'VIX vs last 12 months'};
+
+/* ==========================================================
+   STATE
+   ========================================================== */
+const LIB = {
+  eunl:{name:'iShares Core MSCI World', short:'MSCI World ETF', type:'ETF', beta:1.0, usd:0.70, tech:0.25, crypto:0, look:{nvda:0.05,aapl:0.045,msft:0.04}, color:'#1E2263', initials:'MW'},
+  sp5: {name:'iShares Core S&P 500', short:'S&P 500 ETF', type:'ETF', beta:1.0, usd:1.0, tech:0.32, crypto:0, look:{nvda:0.07,aapl:0.065,msft:0.06}, color:'#2A3190', initials:'SP'},
+  xmme:{name:'Xtrackers MSCI Emerging Markets', short:'EM ETF', type:'ETF', beta:1.1, usd:0.30, tech:0.22, crypto:0, look:{}, color:'#5B6BC9', initials:'EM'},
+  nvda:{name:'Nvidia', short:'Nvidia', type:'Stock', beta:1.8, usd:1.0, tech:1.0, crypto:0, look:{nvda:1}, color:'#4E9300', initials:'NV'},
+  aapl:{name:'Apple', short:'Apple', type:'Stock', beta:1.2, usd:1.0, tech:1.0, crypto:0, look:{aapl:1}, color:'#555B7A', initials:'AP'},
+  tsla:{name:'Tesla', short:'Tesla', type:'Stock', beta:2.0, usd:1.0, tech:0.3, crypto:0, look:{tsla:1}, color:'#B23A18', initials:'TS'},
+  itx: {name:'Inditex', short:'Inditex', type:'Stock', beta:0.9, usd:0.0, tech:0.0, crypto:0, look:{itx:1}, color:'#A8620B', initials:'IT'},
+  btc: {name:'Bitcoin', short:'Bitcoin', type:'Crypto', beta:1.6, usd:1.0, tech:0.0, crypto:1, look:{btc:1}, color:'#F2A541', initials:'₿'}
+};
+const COMPANY = {nvda:'Nvidia', aapl:'Apple', msft:'Microsoft', tsla:'Tesla', itx:'Inditex', btc:'Bitcoin'};
+const mk = (id, value, broker)=>({id, value, broker, ...LIB[id]});
+const PORTFOLIO = [mk('eunl',1650,'Trade Republic'), mk('nvda',520,'Trade Republic'), mk('xmme',300,'Revolut'), mk('itx',280,'Revolut')];
+const S = {
+  onboarded:false, obStep:0,
+  profile:{horizon:null, reaction:null, brokers:[], name:'Lena'},
+  tab:'home', sub:null, detail:'plain',
+  vix:{close:[...VIX.recent.close], high:[...VIX.recent.high], low:[...VIX.recent.low], dates:[...VIX.recent.dates]},
+  weather:null,
+  holdings: JSON.parse(JSON.stringify(PORTFOLIO)), base: JSON.parse(JSON.stringify(PORTFOLIO)), custom:false, draft:{},
+  dayMove: 0.004,
+  alerts:[], unread:0,
+  rules:[
+    {id:'r1', name:'Calm shield', on:true, when:'stormy', then:'mm10', desc:'IF market weather is Stormy THEN propose moving 10% into a money market ETF'},
+    {id:'r2', name:'Concentration guard', on:true, when:'conc', then:'trim', desc:'IF one company > 15% of my portfolio THEN propose trimming back to 15%'},
+    {id:'r3', name:'Hype cool-off', on:true, when:'hype', then:'wait', desc:'IF I buy a stock trending on social media THEN ask me to wait 24h first'}
+  ],
+  trialMode:true, paused:false, proposals:[], history:[], lessonsDone:{},
+  concLimit:0.15
+};
+
+/* ==========================================================
+   PORTFOLIO MATH (look-through exposure & move attribution)
+   ========================================================== */
+const eur = (v,d=0)=> (v<0?'−':'')+'€'+Math.abs(v).toLocaleString('en-IE',{minimumFractionDigits:d,maximumFractionDigits:d});
+const pc = (v,d=1)=> (v>0?'+':v<0?'−':'')+Math.abs(v*100).toFixed(d)+'%';
+function total(){ return S.holdings.reduce((a,h)=>a+h.value,0); }
+function exposure(){
+  const T = total(); let beta=0,tech=0,usd=0,crypto=0; const co={}, direct={};
+  S.holdings.forEach(h=>{ const w=h.value/T; beta+=w*h.beta; tech+=w*h.tech; usd+=w*h.usd; crypto+=w*(h.crypto||0);
+    Object.entries(h.look||{}).forEach(([k,f])=>{ co[k]=(co[k]||0)+h.value*f; if(f===1) direct[k]=(direct[k]||0)+h.value; }); });
+  let topId=null; Object.keys(co).forEach(k=>{ if(!topId||co[k]>co[topId]) topId=k; });
+  const top = topId? {id:topId, name:COMPANY[topId], share:co[topId]/T, direct:direct[topId]||0, hidden:co[topId]-(direct[topId]||0)} : {id:null,name:'none',share:0,direct:0,hidden:0};
+  return {T,beta,tech,usd,crypto,top,nvda:(co.nvda||0)/T,co};
+}
+/* For each holding: EUR return = local return + USD share × FX move.
+   Market part = beta × market move; stock-specific = local − market part. */
+function attribute(sc){
+  const T = total(); let market=0, specific=0, fx=0; const per=[];
+  S.holdings.forEach(h=>{
+    const w=h.value/T, local=sc.local[h.id]??sc.market*h.beta;
+    const m=h.beta*sc.market, s=local-m, f=h.usd*sc.fx;
+    market+=w*m; specific+=w*s; fx+=w*f;
+    per.push({h, ret:local+f, eurMove:h.value*(local+f), spec:s});
+  });
+  per.sort((a,b)=>a.eurMove-b.eurMove);
+  return {market,specific,fx,total:market+specific+fx,eurTotal:T*(market+specific+fx),per,T};
+}
+
+/* Personal market-risk score 0-100 (explainable, rule-based) */
+function riskScore(){
+  const ex=exposure(); const clamp=(v)=>Math.max(0,Math.min(1,v));
+  const parts=[
+    ['Sensitivity to the market', clamp((ex.beta-0.6)/1.2)*40, `moves ${ex.beta.toFixed(2)}× the market`],
+    ['Concentration in one name', clamp(ex.top.share/0.4)*30, `${ex.top.name} is ${(ex.top.share*100).toFixed(0)}% of your money`],
+    ['Currency exposure', clamp(ex.usd)*15, `${(ex.usd*100).toFixed(0)}% in US dollars`],
+    ['Crypto', clamp(ex.crypto/0.2)*15, `${(ex.crypto*100).toFixed(0)}% in crypto`]
+  ];
+  const score=Math.round(parts.reduce((a,p)=>a+p[1],0));
+  const level = score<35?'Low':score<60?'Medium':'High';
+  const tips=[];
+  if(ex.top.share>S.concLimit) tips.push(`${ex.top.name} is above your ${(S.concLimit*100).toFixed(0)}% limit${ex.top.hidden>1?`, partly hidden inside your ETFs (${eur(ex.top.hidden)})`:''}. Consider a concentration rule.`);
+  if(ex.beta>1.15) tips.push('Your portfolio swings more than the market. Expect bigger drops in a sell-off; a Calm-shield rule can help.');
+  if(ex.usd>0.6) tips.push('Most of your money is in US dollars, so a weaker dollar can lower your euro value even if prices don’t move.');
+  if(ex.crypto>0.1) tips.push('Crypto can halve in weeks. Keep it to an amount you could watch fall without selling.');
+  if(S.profile.horizon==='<2' && score>=35) tips.push('You need this money within 2 years. For short horizons, lower-risk assets usually fit better.');
+  if(!tips.length) tips.push('Well spread and in line with your plan. Vymera will stay quiet unless something really matters.');
+  return {score, level, parts, tips, ex};
+}
+
+/* ==========================================================
+   DECISION LOGIC (what Vymera recommends)
+   ========================================================== */
+function recommend(att){
+  const ex = exposure(), w = S.weather?band(S.weather.p):'calm';
+  const long = S.profile.horizon==='5+', short = S.profile.horizon==='<2';
+  let rec='hold', why='';
+  if(short && w==='stormy'){ rec='reduce'; why='You need this money within 2 years and a storm is likely, so lowering risk protects what you need soon.'; }
+  else if(ex.top.share > S.concLimit && att.specific < -0.01){ rec='rebalance'; why=`Most of the extra loss came from one company that is ${(ex.top.share*100).toFixed(0)}% of your money, above your own ${(S.concLimit*100).toFixed(0)}% limit.`; }
+  else { rec='hold'; why = long ? 'You invest for 5+ years. Drops like this are normal along the way, and selling now would lock in the loss.' : 'This move is within normal market swings. Your plan still works.'; }
+  return {rec, why};
+}
+
+/* ==========================================================
+   VIEWS
+   ========================================================== */
+const $ = (s,r=document)=>r.querySelector(s);
+const view = $('#view');
+function render(){
+  $('#tabbar').classList.toggle('hidden', !S.onboarded);
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===S.tab));
+  $('#badge').classList.toggle('hidden', S.unread===0); $('#badge').textContent=S.unread;
+  if(!S.onboarded){ view.innerHTML = Onboarding(); bindOnboarding(); return; }
+  const v = {home:Home, alerts:Alerts, rules:Rules, learn:Learn}[S.tab];
+  view.innerHTML = v(); bindView();
+  view.scrollTop = 0;
+  updateModelInfo();
+}
+
+/* ---------- onboarding ---------- */
+function Onboarding(){
+  const st = S.obStep, steps = `<div class="steps">${[0,1,2,3].map(i=>`<i class="${i<=Math.min(st,3)?'on':''}"></i>`).join('')}</div>`;
+  if(st===0) return `<div class="ob">
+    <div class="grow" style="display:flex;flex-direction:column;justify-content:center">
+      <svg width="64" height="64" viewBox="0 0 40 40"><rect width="40" height="40" rx="11" fill="#6CC201"/><path d="M10 13l10 16 10-16" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <h1 style="margin-top:22px;font-size:2.1em">Investing is calmer when you know <span style="color:var(--green)">why</span>.</h1>
+      <p class="muted" style="margin-top:14px;line-height:1.5">Vymera explains what moves your portfolio, warns you only when it matters, and helps you act on rules you set while calm.</p>
+      <div class="card flat" style="margin-top:22px">
+        <div class="row small"><b style="color:var(--green)">✓</b> Read-only: we never move money without your tap</div>
+        <div class="row small" style="margin-top:8px"><b style="color:var(--green)">✓</b> All your brokers and ETFs in one view</div>
+        <div class="row small" style="margin-top:8px"><b style="color:var(--green)">✓</b> Plain language, no jargon</div>
+      </div>
+    </div>
+    <button class="btn primary" data-ob="next">Get started</button>
+    <p class="xs muted" style="text-align:center;margin-top:10px">Takes 60 seconds · No personal financial details needed</p>
+  </div>`;
+  if(st===1) return `<div class="ob">${steps}
+    <div class="eyebrow">Step 1 of 3 · Your plan</div>
+    <h1 style="margin-top:6px">When will you need this money?</h1>
+    <p class="muted small" style="margin-top:6px">This decides when we say “hold” and when we suggest lowering risk.</p>
+    ${[['<2','In less than 2 years','e.g. a deposit, a trip, studies'],['2-5','In 2–5 years','e.g. a car, moving out'],['5+','In 5+ years','long-term wealth building']].map(([k,t,s])=>`<button class="choice ${S.profile.horizon===k?'on':''}" data-h="${k}">${t}<span>${s}</span></button>`).join('')}
+    <div class="grow"></div>
+    <button class="btn primary" data-ob="next" ${S.profile.horizon?'':'disabled'}>Continue</button>
+  </div>`;
+  if(st===2) return `<div class="ob">${steps}
+    <div class="eyebrow">Step 2 of 3 · Your reaction</div>
+    <h1 style="margin-top:6px">Your portfolio drops 15% in a week. What’s your gut reaction?</h1>
+    <p class="muted small" style="margin-top:6px">No wrong answer. It helps us time explanations for you.</p>
+    ${[['sell','Sell before it gets worse','totally normal feeling'],['call','Call someone I trust','parent, friend, group chat'],['wait','Wait and check the news',''],['buy','Buy more while it’s cheap','']].map(([k,t,s])=>`<button class="choice ${S.profile.reaction===k?'on':''}" data-r="${k}">${t}${s?`<span>${s}</span>`:''}</button>`).join('')}
+    <div class="grow"></div>
+    <button class="btn primary" data-ob="next" ${S.profile.reaction?'':'disabled'}>Continue</button>
+  </div>`;
+  if(st===3) return `<div class="ob">${steps}
+    <div class="eyebrow">Step 3 of 3 · Connect</div>
+    <h1 style="margin-top:6px">Where do you invest?</h1>
+    <p class="muted small" style="margin-top:6px">Read-only connection. Vymera can see holdings, never trade on its own.</p>
+    ${[['tr','Trade Republic','#000'],['rev','Revolut','#0666EB'],['xtb','XTB','#E2231A'],['t212','Trading 212','#00A4DF']].map(([k,n,c])=>`<button class="broker ${S.profile.brokers.includes(k)?'on':''}" data-b="${k}"><div class="logo" style="background:${c}">${n.split(' ').map(x=>x[0]).join('')}</div><div><b style="color:var(--navy)">${n}</b><div class="xs muted">Read-only · EU regulated</div></div><div class="check">${S.profile.brokers.includes(k)?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="4"><path d="M5 12l5 5 9-10"/></svg>':''}</div></button>`).join('')}
+    <div class="grow"></div>
+    <button class="btn green" data-ob="manual">Enter my own portfolio →</button>
+    <button class="btn line" style="margin-top:8px" data-ob="finish">${S.profile.brokers.length?'Connect (demo portfolio)':'Use demo portfolio'}</button>
+    <p class="xs muted" style="text-align:center;margin-top:10px">MVP: broker connections are simulated. Enter amounts to test with your own mix.</p>
+  </div>`;
+  if(st===4) return `<div class="ob">${steps}
+    <div class="eyebrow">Your portfolio · rough amounts are fine</div>
+    <h1 style="margin-top:6px">What do you hold?</h1>
+    <p class="muted small" style="margin-top:6px">Enter rough amounts in euros. Nothing is stored or sent anywhere.</p>
+    ${PortfolioForm()}
+    <div class="grow" style="min-height:14px"></div>
+    <button class="btn green" data-ob="custom" id="obCustom" ${draftTotal()>0?'':'disabled'}>See my risk assessment</button>
+    <button class="btn line" style="margin-top:8px" data-ob="back">‹ Back</button>
+  </div>`;
+}
+function draftTotal(){ return Object.values(S.draft).reduce((a,v)=>a+(+v||0),0); }
+function PortfolioForm(){
+  return `<div class="card flat" style="padding:6px 14px">${Object.entries(LIB).map(([id,L])=>`<div class="holding" style="padding:8px 0"><div class="logo" style="background:${L.color};width:34px;height:34px">${L.initials}</div><div style="flex:1"><b class="small" style="color:var(--navy)">${L.short}</b><div class="xs muted">${L.type}</div></div><div class="row" style="gap:4px"><span class="muted small">€</span><input type="number" inputmode="decimal" min="0" step="10" placeholder="0" value="${S.draft[id]??''}" data-amt="${id}" aria-label="${L.short} amount in euros" style="width:84px;padding:9px;border-radius:10px;border:1.5px solid var(--line);font-weight:700;color:var(--navy);text-align:right"></div></div>`).join('')}</div>
+  <div class="field"><label>My limit for one company</label><div class="chips">${[0.10,0.15,0.20,0.25].map(v=>`<button class="chip ${S.concLimit===v?'on':''}" data-lim="${v}">${Math.round(v*100)}%</button>`).join('')}</div></div>
+  <div class="row between small" style="margin-top:12px"><span class="muted">Total</span><b id="draftTotal" style="color:var(--navy)">${eur(draftTotal())}</b></div>`;
+}
+function bindPortfolioForm(root, onChange){
+  root.querySelectorAll('[data-amt]').forEach(inp=>inp.oninput=()=>{ const v=Math.max(0,+inp.value||0); S.draft[inp.dataset.amt]=inp.value===''?'':v; const t=root.querySelector('#draftTotal'); if(t) t.textContent=eur(draftTotal()); onChange&&onChange(); });
+  root.querySelectorAll('[data-lim]').forEach(c=>c.onclick=()=>{ S.concLimit=+c.dataset.lim; root.querySelectorAll('[data-lim]').forEach(x=>x.classList.toggle('on',x===c)); });
+}
+function applyDraft(){
+  const hs=Object.entries(S.draft).filter(([k,v])=>+v>0).map(([k,v])=>mk(k, Math.round(+v), 'Manual entry'));
+  if(!hs.length) return false;
+  S.holdings=hs; S.base=JSON.parse(JSON.stringify(hs)); S.custom=true; S.alerts=[]; S.unread=0; S.dayMove=0; return true;
+}
+function bindOnboarding(){
+  view.querySelectorAll('[data-ob]').forEach(b=>b.onclick=()=>{
+    const k=b.dataset.ob;
+    if(k==='next'){ S.obStep++; render(); }
+    else if(k==='manual'){ S.obStep=4; render(); }
+    else if(k==='back'){ S.obStep=3; render(); }
+    else if(k==='custom'){ if(applyDraft()){ S.onboarded=true; S.tab='home'; computeWeather(); render(); setTimeout(()=>act('snapshot',{}),250); } }
+    else { S.onboarded=true; S.tab='home'; computeWeather(); render(); }
+  });
+  bindPortfolioForm(view, ()=>{ const b=$('#obCustom'); if(b) b.disabled = draftTotal()<=0; });
+  view.querySelectorAll('[data-h]').forEach(b=>b.onclick=()=>{S.profile.horizon=b.dataset.h; render();});
+  view.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{S.profile.reaction=b.dataset.r; render();});
+  view.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{const k=b.dataset.b,a=S.profile.brokers; a.includes(k)?a.splice(a.indexOf(k),1):a.push(k); render();});
+}
+
+/* ---------- home ---------- */
+function weatherIcon(b,size=34){
+  if(b==='calm') return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="#4E9300" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>`;
+  if(b==='choppy') return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="#A8620B" stroke-width="2" stroke-linecap="round"><path d="M2 8c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/><path d="M2 14c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/><path d="M2 20c2-2 4-2 6 0s4 2 6 0 4-2 6 0"/></svg>`;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="#1E2263" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 16a5 5 0 0 0-1-9.9A6 6 0 0 0 4.3 9 4 4 0 0 0 6 16"/><path d="M13 12l-3 5h4l-3 5"/></svg>`;
+}
+function sparkline(arr){
+  const a = arr.slice(-60), mn=Math.min(...a,12), mx=Math.max(...a,30), W=300, H=46;
+  const pts = a.map((v,i)=>`${(i/(a.length-1))*W},${H-((v-mn)/(mx-mn))*H}`).join(' ');
+  const y25 = H-((25-mn)/(mx-mn))*H;
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><line x1="0" x2="${W}" y1="${y25}" y2="${y25}" stroke="#E4572E" stroke-dasharray="4 4" stroke-width="1"/><polyline points="${pts}" fill="none" stroke="#1E2263" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>`;
+}
+function Home(){
+  const ex = exposure(), w = S.weather, b = band(w.p), B = BAND[b];
+  const top = Object.entries(w.contrib).sort((x,y)=>Math.abs(y[1])-Math.abs(x[1])).slice(0,3);
+  const lastAlert = S.alerts[0];
+  const pendingProp = S.proposals.find(p=>p.status==='pending');
+  return `
+  <div class="row between" style="margin-top:6px">
+    <div><div class="eyebrow">Good morning</div><h2 style="font-size:1.4em">${S.profile.name}</h2></div>
+    <button class="pill navy" data-act="settings" aria-label="Settings">⚙︎ ${S.detail==='plain'?'Plain':'Detailed'}</button>
+  </div>
+
+  ${pendingProp?`<button class="alert-item" data-act="openProposal" data-id="${pendingProp.id}" style="border:2px solid var(--green)"><div class="dot" style="background:var(--green)"></div><div><b style="color:var(--navy)">Your rule “${pendingProp.rule}” needs your OK</b><div class="small muted">${pendingProp.summary}</div></div></button>`:''}
+
+  <div class="hero">
+    <div class="eyebrow" style="color:rgba(255,255,255,.7)">All brokers · look-through</div>
+    <div class="val">${eur(ex.T)}</div>
+    <div class="chg">${pc(S.dayMove)} this week · ${eur(ex.T*S.dayMove/(1+S.dayMove))}</div>
+    <div class="row xs" style="margin-top:12px;gap:6px;opacity:.85">${[...new Set(S.holdings.map(h=>h.broker))].map(x=>`<span class="pill" style="background:rgba(255,255,255,.14);color:#fff">${x}</span>`).join('')}</div>
+  </div>
+
+  ${(()=>{ const r=riskScore(); const col=r.level==='Low'?'green':r.level==='Medium'?'amber':'coral'; return `<button class="card" data-act="snapshot" style="display:block;width:100%;text-align:left">
+    <div class="row between"><div class="eyebrow">Your market-risk assessment</div><span class="pill ${col}">${r.level} · ${r.score}/100</span></div>
+    <div class="bar" style="margin-top:10px;height:8px"><i style="width:${r.score}%;background:${r.level==='Low'?'var(--green)':r.level==='Medium'?'var(--amber)':'var(--coral)'}"></i></div>
+    <div class="small" style="margin-top:8px;color:var(--ink)">${r.tips[0]}</div><div class="small link" style="margin-top:6px">See full breakdown ›</div></button>`; })()}
+
+  <div class="card">
+    <div class="row between"><div class="eyebrow">Market weather · next 2 weeks</div><span class="pill ${B.pill}">${B.label}</span></div>
+    <div class="weather" style="margin-top:10px">
+      <div class="wicon ${b}">${weatherIcon(b)}</div>
+      <div><b style="color:var(--navy);font-size:1.05em">${w.p<0.01?'<1':(w.p*100).toFixed(0)}% storm chance</b><div class="small muted" style="margin-top:2px">${B.text}</div></div>
+    </div>
+    <div class="meter"><div class="knob" style="left:${Math.max(2,Math.min(98,w.p*100))}%"></div></div>
+    <div class="row between xs muted"><span>Calm</span><span>Choppy</span><span>Stormy</span></div>
+    ${sparkline(S.vix.close)}
+    <div class="row between xs muted"><span>VIX, last 60 days · ${S.vix.dates.at(-1)}</span><span style="color:var(--coral)">storm level 25</span></div>
+    <details style="margin-top:10px"><summary class="small link" style="cursor:pointer">Why this forecast?</summary>
+      <div class="small" style="margin-top:8px;line-height:1.5">Our model learned from 35 years of market data (1990–2015, tested on 2019–2026). Today the biggest drivers are:
+      <ul style="margin:6px 0 0 18px">${top.map(([k,v])=>`<li>${FEAT_NAMES[k]}: ${v>0?'raises':'lowers'} the chance</li>`).join('')}</ul>
+      <div class="xs muted" style="margin-top:6px">Logistic regression · test AUC ${MODEL.test_auc} · a forecast, not a promise.</div></div>
+    </details>
+  </div>
+
+  <div class="card">
+    <div class="row between"><h3>What you really own</h3><button class="xs link" data-act="editPortfolio">Edit holdings</button></div>
+    <p class="small muted" style="margin-top:4px">Your portfolio moves about <b style="color:var(--navy)">${ex.beta.toFixed(2)}×</b> as much as the market.</p>
+    <div class="expo"><div class="lbl"><span>Biggest single name: ${ex.top.name}</span><b style="color:${ex.top.share>S.concLimit?'#B23A18':'var(--navy)'}">${(ex.top.share*100).toFixed(0)}%</b></div><div class="bar"><i style="width:${ex.top.share*100}%;background:${ex.top.share>S.concLimit?'var(--coral)':'var(--navy)'}"></i><span class="limit" style="left:${S.concLimit*100}%"></span></div>
+      <div class="xs muted" style="margin-top:4px">${ex.top.share>S.concLimit?`Above your ${(S.concLimit*100).toFixed(0)}% limit. ${eur(ex.top.direct)} direct${ex.top.hidden>1?` + ${eur(ex.top.hidden)} hidden inside your ETFs`:''}.`:`Within your ${(S.concLimit*100).toFixed(0)}% limit.`}</div></div>
+    <div class="expo"><div class="lbl"><span>Technology sector</span><b>${(ex.tech*100).toFixed(0)}%</b></div><div class="bar"><i style="width:${ex.tech*100}%"></i></div></div>
+    <div class="expo"><div class="lbl"><span>In US dollars (currency risk)</span><b>${(ex.usd*100).toFixed(0)}%</b></div><div class="bar"><i style="width:${ex.usd*100}%;background:#5B6BC9"></i></div></div>
+    <div class="divider"></div>
+    ${S.holdings.map(h=>`<div class="holding"><div class="logo" style="background:${h.color}">${h.initials}</div><div style="flex:1"><b style="color:var(--navy)" class="small">${h.short}</b><div class="xs muted">${h.type} · ${h.broker}</div></div><b class="small">${eur(h.value)}</b></div>`).join('')}
+  </div>
+
+  ${lastAlert?`<div class="card"><div class="row between"><h3>Latest explanation</h3><button class="small link" data-tab-go="alerts">All</button></div><button class="alert-item flat" style="box-shadow:none;padding:10px 0 0" data-act="openAlert" data-id="${lastAlert.id}"><div class="dot"></div><div><b style="color:var(--navy)">${lastAlert.title}</b><div class="small muted">${lastAlert.sub}</div></div></button></div>`:
+  `<div class="card flat"><div class="row"><div class="wicon calm" style="width:40px;height:40px">✓</div><div class="small"><b style="color:var(--navy)">No alerts. That’s the point.</b><div class="muted">We only message you when something actually affects your portfolio.</div></div></div></div>`}
+
+  <div class="card flat"><div class="row between"><div><h3>Protection rules</h3><div class="small muted">${S.rules.filter(r=>r.on).length} active · ${S.paused?'paused':(S.trialMode?'trial mode (no real trades)':'live with your approval')}</div></div><button class="btn ghost" style="width:auto;padding:10px 14px" data-tab-go="rules">Manage</button></div></div>
+  `;
+}
+
+/* ---------- alerts ---------- */
+function Alerts(){
+  if(S.sub && S.sub.type==='alert') return AlertDetail(S.alerts.find(a=>a.id===S.sub.id));
+  return `<h1 style="margin-top:8px">Alerts</h1>
+  <p class="muted small" style="margin-top:6px">Only when something moves <i>your</i> money. Each one tells you why and what you can do.</p>
+  ${S.alerts.length? S.alerts.map(a=>`<button class="alert-item ${a.read?'read':''}" data-act="openAlert" data-id="${a.id}"><div class="dot"></div><div style="flex:1"><div class="row between"><b style="color:var(--navy)">${a.title}</b><span class="xs muted">${a.time}</span></div><div class="small muted" style="margin-top:2px">${a.sub}</div>${a.choice?`<span class="pill green" style="margin-top:8px">You chose: ${a.choice}</span>`:''}</div></button>`).join('')
+  : `<div class="card flat" style="text-align:center;padding:30px 20px"><div style="font-size:34px">☀️</div><h3 style="margin-top:8px">Nothing to worry about</h3><p class="small muted" style="margin-top:6px">Try a scenario from the demo panel to see an explained alert.</p></div>`}
+  ${S.history.length?`<h2 style="margin-top:24px">Decisions log</h2>${S.history.map(h=>`<div class="card flat small"><div class="row between"><b style="color:var(--navy)">${h.what}</b><span class="xs muted">${h.time}</span></div><div class="muted xs" style="margin-top:3px">${h.note}</div>${h.undo?`<button class="link xs" style="margin-top:6px" data-act="undo" data-id="${h.id}">Undo (24h)</button>`:''}</div>`).join('')}`:''}`;
+}
+function AlertDetail(a){
+  a.read=true; S.unread=S.alerts.filter(x=>!x.read).length;
+  const att=a.att, R=a.rec, plain=S.detail==='plain';
+  const rows=[['Whole market',att.market],['Stock-specific extra',att.specific],['Currency (USD→EUR)',att.fx]];
+  const maxAbs=Math.max(...rows.map(r=>Math.abs(r[1])),0.001);
+  const worst=att.per[0];
+  const opts = {
+    hold:{t:'Hold', d:`Keep everything as it is. Your savings plan continues.`, cost:'Cost: €0'},
+    rebalance:{t:'Rebalance', d:`Trim ${a.topName} back to your ${(S.concLimit*100).toFixed(0)}% limit: sell about ${eur(a.trim)} and spread it across your ETFs.`, cost:'Est. fee €1 · may trigger tax on gains'},
+    reduce:{t:'Reduce risk', d:`Move 10% (${eur(att.T*0.1)}) into a money market ETF that barely moves.`, cost:'Est. fee €1 · may trigger tax on gains'}
+  };
+  return `<button class="back" data-act="backAlerts">‹ Alerts</button>
+  <div class="eyebrow">${a.time} · ${a.kind}</div>
+  <h1 style="margin-top:4px;font-size:1.55em">${a.headline}</h1>
+
+  <div class="card">
+    <h3>What moved your money</h3>
+    <div class="wf">${rows.map(([n,v])=>`<div class="wf-row"><span>${n}</span><div class="wf-track"><i class="${v>0?'pos':''}" style="width:${Math.abs(v)/maxAbs*50}%"></i></div><b>${pc(v)}</b></div>`).join('')}
+      <div class="divider"></div><div class="wf-row"><b style="text-align:left">Your portfolio</b><span></span><b>${pc(att.total)}</b></div></div>
+    <div class="quote">${a.explain}</div>
+    ${plain?'':`<div class="code">${att.per.map(p=>`${p.h.short.padEnd(14,' ')} ${pc(p.ret).padStart(7,' ')}  ${eur(p.eurMove,0).padStart(6,' ')}`).join('<br>').replace(/ /g,'&nbsp;')}</div>`}
+  </div>
+
+  <div class="card">
+    <div class="row between"><h3>Your options</h3><span class="xs muted">You decide</span></div>
+    ${['hold','rebalance','reduce'].map(k=>`<button class="option ${R.rec===k?'rec':''} ${a.choice===opts[k].t?'sel':''}" data-act="choose" data-k="${k}" data-id="${a.id}">
+      <div class="t">${opts[k].t}${R.rec===k?'<span class="pill green">Fits your plan</span>':''}</div>
+      <div class="small" style="margin-top:4px;color:var(--ink)">${opts[k].d}</div>
+      ${R.rec===k?`<div class="small" style="margin-top:6px;color:var(--green-d)"><b>Why:</b> ${R.why}</div>`:''}
+      <div class="xs muted" style="margin-top:6px">${opts[k].cost}</div></button>`).join('')}
+    <div class="sources"><b>Sources:</b> ${a.sources}<br>Vymera gives information, not personal investment advice. Nothing is traded without your confirmation.</div>
+  </div>
+
+  <div class="card flat">
+    <div class="row"><div class="lesson" style="box-shadow:none;padding:0;margin:0;width:auto"><div class="em">💬</div></div><div class="small"><b style="color:var(--navy)">Talk it through</b><div class="muted">Send this explanation to someone you trust: a parent, a friend, your group chat.</div></div></div>
+    <button class="btn ghost" style="margin-top:10px" data-act="share">Share explanation</button>
+  </div>
+  <div class="card flat"><div class="small"><b style="color:var(--navy)">Learn in 60 seconds:</b> <button class="link" data-act="lesson" data-l="${a.lesson}">${LESSONS.find(l=>l.id===a.lesson).t}</button></div></div>`;
+}
+
+/* ---------- rules ---------- */
+function Rules(){
+  if(S.sub && S.sub.type==='builder') return RuleBuilder();
+  if(S.sub && S.sub.type==='backtest') return Backtest();
+  return `<h1 style="margin-top:8px">Protection rules</h1>
+  <p class="muted small" style="margin-top:6px">Decide while you’re calm. Vymera proposes, you confirm with one tap. You can undo or pause at any time.</p>
+  <div class="card flat"><div class="row between"><div><b style="color:var(--navy)">Trial mode</b><div class="xs muted">See proposals without executing trades</div></div><button class="switch ${S.trialMode?'on':''}" data-act="trial" aria-label="Trial mode"></button></div>
+  <div class="divider"></div><div class="row between"><div><b style="color:var(--navy)">Pause everything</b><div class="xs muted">Stops all proposals instantly</div></div><button class="switch ${S.paused?'on':''}" data-act="pause" aria-label="Pause all"></button></div></div>
+  ${S.rules.map(r=>`<div class="rule"><div class="row between"><b style="color:var(--navy)">${r.name}</b><button class="switch ${r.on?'on':''}" data-act="toggleRule" data-id="${r.id}" aria-label="Toggle ${r.name}"></button></div>
+    <div class="code">${r.desc.replace('IF','<b style="color:#4E9300">IF</b>').replace('THEN','<br><b style="color:#4E9300">THEN</b>')}<br><b style="color:#4E9300">AND</b> always ask me first</div>
+    ${r.when==='stormy'?`<button class="link small" style="margin-top:8px" data-act="backtest">See how this rule did in 2020 and 2025 →</button>`:''}</div>`).join('')}
+  <button class="btn primary" style="margin-top:16px" data-act="builder">+ New rule</button>
+  <p class="xs muted" style="margin-top:10px;text-align:center">Rules are always visible and editable. Automatic execution without your tap is not available, by design.</p>`;
+}
+function RuleBuilder(){
+  return `<button class="back" data-act="backRules">‹ Rules</button>
+  <h1>New rule</h1><p class="small muted" style="margin-top:6px">Write it now, while markets are quiet.</p>
+  <div class="field"><label>When</label><select id="rbWhen"><option value="dd">My portfolio is down from its peak by…</option><option value="stormy">Market weather turns Stormy</option><option value="stock">A single stock falls in one day by…</option></select></div>
+  <div class="field" id="rbThrWrap"><label>Threshold</label><div class="chips" id="rbThr">${[10,15,20,25].map(v=>`<button class="chip ${v===15?'on':''}" data-v="${v}">${v}%</button>`).join('')}</div></div>
+  <div class="field"><label>Then propose</label><select id="rbThen"><option value="mm10">Move 10% into a money market ETF</option><option value="mm20">Move 20% into a money market ETF</option><option value="explain">Just explain, no trade</option><option value="pausebuy">Pause hype buys for 48h</option></select></div>
+  <div class="field"><label>Approval</label><div class="card flat" style="margin-top:0;padding:12px"><div class="row between"><span class="small"><b style="color:var(--navy)">Ask me before any trade</b><br><span class="muted xs">Always on. Proposals expire after 24h.</span></span><span class="switch on" style="opacity:.6"></span></div></div></div>
+  <div class="code" id="rbPreview"></div>
+  <button class="btn green" style="margin-top:16px" data-act="saveRule">Save rule</button>`;
+}
+function Backtest(){
+  const runs = ['covid_2020','tariff_2025'].map(k=>{
+    const d=VIX[k]; const trig=[]; let inStorm=false;
+    for(let i=0;i<d.dates.length;i++){            // FOR each historical day
+      const p=d.p_python[i]; if(p===null) continue;
+      if(p>=0.6 && !inStorm){ trig.push({date:d.dates[i], vix:d.close[i], p}); inStorm=true; }   // IF storm starts → proposal
+      if(p<0.3) inStorm=false;
+    }
+    return {k, trig, d};
+  });
+  const info = {covid_2020:{t:'COVID-19 crash, 2020', low:'2020-03-23', from:'2020-01-02'}, tariff_2025:{t:'Tariff shock, 2025', low:'2025-04-08', from:'2025-01-02'}};
+  const days=(a,b)=>Math.round((new Date(b)-new Date(a))/864e5);
+  return `<button class="back" data-act="backRules">‹ Rules</button>
+  <h1>Calm shield: backtest</h1><p class="small muted" style="margin-top:6px">How often would this rule have asked you, using real VIX data and the same model?</p>
+  ${runs.map(r=>{const I=info[r.k]; const tr=r.trig.filter(t=>t.date>=I.from); const first=tr[0];
+    return `<div class="card"><h3>${I.t}</h3>${miniChart(r.d, I.from)}
+    <div class="small" style="margin-top:8px"><b style="color:var(--navy)">${tr.length} proposal${tr.length===1?'':'s'}</b> in the first half of the year.${first?` First one on <b>${first.date}</b> (VIX ${first.vix.toFixed(1)}), <b>${days(first.date,I.low)} days before</b> the market low on ${I.low}.`:''}</div></div>`}).join('')}
+  <p class="xs muted" style="margin-top:12px">Backtests show the past, not the future. The model misses some storms and raises some false alarms (about 1 in 20 calm days).</p>`;
+}
+function miniChart(d, from){
+  const i0=d.dates.findIndex(x=>x>=from); const c=d.close.slice(i0), p=d.p_python.slice(i0); const W=300,H=70, mx=Math.max(...c,30);
+  const pl=c.map((v,i)=>`${i/(c.length-1)*W},${H-v/mx*H}`).join(' ');
+  const area='0,'+H+' '+p.map((v,i)=>`${i/(p.length-1)*W},${H-(v||0)*H}`).join(' ')+` ${W},${H}`;
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:70px;margin-top:8px" preserveAspectRatio="none"><polygon points="${area}" fill="#6CC201" opacity=".25"/><line x1="0" x2="${W}" y1="${H-25/mx*H}" y2="${H-25/mx*H}" stroke="#E4572E" stroke-dasharray="4 4"/><polyline points="${pl}" fill="none" stroke="#1E2263" stroke-width="1.8" vector-effect="non-scaling-stroke"/></svg><div class="row xs muted" style="gap:12px"><span><b style="color:#1E2263">—</b> VIX</span><span><b style="color:#6CC201">■</b> storm probability</span></div>`;
+}
+
+/* ---------- learn ---------- */
+const LESSONS = [
+  {id:'vol', e:'🌊', t:'What is volatility?', b:'Volatility is how much prices swing. High volatility doesn’t mean you lose money; it means the ride is bumpier. A global ETF has had several drops of 20%+ since 2000 and recovered from each one over time.'},
+  {id:'etf', e:'🧺', t:'Why ETFs fall less than single stocks', b:'An ETF holds hundreds of companies. When one company has bad news, the others cushion it. A single stock carries “stock-specific risk” that diversification removes.'},
+  {id:'fx', e:'💱', t:'Currency risk in 60 seconds', b:'If you earn euros but own US companies, your return depends on the dollar too. When the dollar weakens, your US holdings are worth fewer euros, even if their price didn’t move.'},
+  {id:'vix', e:'📈', t:'What is the VIX “fear index”?', b:'The VIX measures how much volatility options traders expect over the next 30 days. Below 20 is calm, above 25–30 is stressed. Vymera’s model reads its patterns to forecast market weather.'},
+  {id:'conc', e:'🎯', t:'Hidden concentration', b:'Your MSCI World ETF already owns Nvidia, Apple and Microsoft. Buying them again on top can make one company a big part of your money without you noticing.'},
+  {id:'talk', e:'🗣️', t:'How to talk about money at home', b:'Money is still a taboo topic in many families. Start small: share one explanation, ask how they handled their first crash. Nobody needs to share amounts.'}
+];
+function Learn(){
+  if(S.sub && S.sub.type==='lesson'){ const l=LESSONS.find(x=>x.id===S.sub.id); S.lessonsDone[l.id]=true;
+    return `<button class="back" data-act="backLearn">‹ Learn</button><div style="font-size:46px;margin-top:6px">${l.e}</div><h1 style="margin-top:8px">${l.t}</h1><p style="margin-top:14px;line-height:1.6">${l.b}</p><div class="quote" style="margin-top:18px"><b>Your portfolio:</b> ${lessonPersonal(l.id)}</div><button class="btn primary" style="margin-top:20px" data-act="backLearn">Got it ✓</button>`; }
+  const done=Object.keys(S.lessonsDone).length;
+  return `<h1 style="margin-top:8px">Learn</h1><p class="muted small" style="margin-top:6px">One-minute lessons, tied to what happens in your portfolio.</p>
+  <div class="card flat"><div class="row between small"><b style="color:var(--navy)">Your progress</b><span>${done}/${LESSONS.length}</span></div><div class="progress"><i style="width:${done/LESSONS.length*100}%"></i></div></div>
+  ${LESSONS.map(l=>`<button class="lesson" data-act="lesson" data-l="${l.id}"><div class="em">${l.e}</div><div style="flex:1"><b style="color:var(--navy)">${l.t}</b><div class="xs muted">1 min ${S.lessonsDone[l.id]?'· ✓ done':''}</div></div><span class="muted">›</span></button>`).join('')}`;
+}
+function lessonPersonal(id){
+  const ex=exposure();
+  return {vol:`your portfolio moves about ${ex.beta.toFixed(2)}× the market, slightly more than a pure ETF.`,
+    etf:`${ex.top.name} alone makes up ${(ex.top.share*100).toFixed(0)}% of your money, so its news moves you more than the market.`,
+    fx:`${(ex.usd*100).toFixed(0)}% of your money is in US dollars.`,
+    vix:`the VIX is at ${S.vix.close.at(-1).toFixed(1)} right now: market weather is ${BAND[band(S.weather.p)].label.toLowerCase()}.`,
+    conc:ex.top.hidden>1?`you hold ${eur(ex.top.hidden)} of ${ex.top.name} inside your ETFs on top of ${eur(ex.top.direct)} directly.`:`your biggest name, ${ex.top.name}, is ${(ex.top.share*100).toFixed(0)}% of your money.`,
+    talk:`3 in 6 young investors we interviewed call a parent when markets fall. Sharing the “why” makes that call easier.`}[id];
+}
+
+/* ==========================================================
+   EVENTS
+   ========================================================== */
+function bindView(){
+  view.querySelectorAll('[data-tab-go]').forEach(b=>b.onclick=()=>{S.tab=b.dataset.tabGo; S.sub=null; render();});
+  view.querySelectorAll('[data-act]').forEach(b=>b.onclick=(e)=>{ e.stopPropagation(); act(b.dataset.act, b.dataset); });
+  if(S.sub && S.sub.type==='builder') bindBuilder();
+}
+function act(a, d){
+  if(a==='openAlert'){ S.tab='alerts'; S.sub={type:'alert', id:d.id}; render(); }
+  else if(a==='backAlerts'){ S.sub=null; render(); }
+  else if(a==='choose'){ choose(d.id, d.k); }
+  else if(a==='share'){ sheet(`<h2>Share explanation</h2><p class="small muted" style="margin-top:6px">We share the “why”, never your amounts.</p><div class="quote">“My portfolio dipped this week. Vymera says most of it was the whole market and part was one tech stock. I’m holding because I invest for 5+ years. How did you handle drops like this?”</div><div class="row" style="gap:8px;margin-top:14px"><button class="btn ghost" data-close>WhatsApp</button><button class="btn ghost" data-close>Messages</button><button class="btn ghost" data-close>Copy</button></div>`); }
+  else if(a==='lesson'){ S.tab='learn'; S.sub={type:'lesson', id:d.l}; render(); }
+  else if(a==='backLearn'){ S.sub=null; render(); }
+  else if(a==='trial'){ S.trialMode=!S.trialMode; render(); }
+  else if(a==='pause'){ S.paused=!S.paused; toast(S.paused?'All rules paused. Nothing will be proposed.':'Rules active again.','⏸'); render(); }
+  else if(a==='toggleRule'){ const r=S.rules.find(x=>x.id===d.id); r.on=!r.on; render(); }
+  else if(a==='builder'){ S.sub={type:'builder'}; render(); }
+  else if(a==='backtest'){ S.sub={type:'backtest'}; render(); }
+  else if(a==='backRules'){ S.sub=null; render(); }
+  else if(a==='saveRule'){ saveRule(); }
+  else if(a==='openProposal'){ openProposal(d.id); }
+  else if(a==='undo'){ const h=S.history.find(x=>x.id===d.id); h.undo=false; h.note+=' · Undone'; toast('Undone. Your portfolio is back as it was.','↺'); render(); }
+  else if(a==='snapshot'){ const r=riskScore(); const mx=[40,30,15,15];
+    sheet(`<div class="eyebrow">Personal risk assessment</div><h2 style="margin-top:4px">Market risk: ${r.level} (${r.score}/100)</h2>
+      <p class="small muted" style="margin-top:6px">How exposed your portfolio is to market swings, based on what you hold and your plan (${S.profile.horizon==='<2'?'money needed within 2 years':S.profile.horizon==='2-5'?'2–5 year horizon':'5+ year horizon'}).</p>
+      <div class="card flat">${r.parts.map(([n,pts,d],i)=>`<div style="margin-top:${i?10:0}px"><div class="row between small"><b style="color:var(--navy)">${n}</b><span>${Math.round(pts)} / ${mx[i]}</span></div><div class="bar" style="height:7px;margin-top:5px"><i style="width:${pts/mx[i]*100}%"></i></div><div class="xs muted" style="margin-top:3px">${d}</div></div>`).join('')}</div>
+      <h3 style="margin-top:14px">What this means for you</h3>
+      <ul class="small" style="margin:8px 0 0 18px;line-height:1.55">${r.tips.map(t=>`<li style="margin-top:4px">${t}</li>`).join('')}</ul>
+      <p class="xs muted" style="margin-top:10px">Information, not personal investment advice. Scores use typical betas and ETF holdings, not live data.</p>
+      <div class="row" style="gap:8px;margin-top:14px"><button class="btn primary" id="toRules">Set a protection rule</button><button class="btn line" data-close>Close</button></div>`, (root)=>{ $('#toRules',root).onclick=()=>{ closeSheet(); S.tab='rules'; S.sub=null; render(); }; }); }
+  else if(a==='editPortfolio'){ if(!S.custom){ S.draft={}; S.holdings.forEach(h=>{ S.draft[h.id]=(+S.draft[h.id]||0)+h.value; }); }
+    sheet(`<h2>Edit holdings</h2><p class="small muted" style="margin-top:6px">Rough euro amounts. Stays on this device only.</p>${PortfolioForm()}<button class="btn green" style="margin-top:14px" id="saveP">Update my assessment</button>`, (root)=>{
+      bindPortfolioForm(root); $('#saveP',root).onclick=()=>{ if(applyDraft()){ closeSheet(); computeWeather(); render(); toast('Portfolio updated. Your risk assessment is recalculated.','✓'); } }; }); }
+  else if(a==='settings'){ sheet(`<h2>Display</h2><div class="field"><label>Explanations</label><div class="chips"><button class="chip ${S.detail==='plain'?'on':''}" data-set="plain">Plain language</button><button class="chip ${S.detail==='detailed'?'on':''}" data-set="detailed">Detailed numbers</button></div></div><div class="field"><label>Text size</label><div class="chips">${[['1','Standard'],['1.12','Large'],['1.25','Extra large']].map(([v,n])=>`<button class="chip ${String(getFs())===v?'on':''}" data-fs="${v}">${n}</button>`).join('')}</div></div><div class="field"><label>Language</label><div class="chips"><button class="chip on">English</button><button class="chip">Deutsch (soon)</button><button class="chip">Español (soon)</button></div></div><button class="btn primary" style="margin-top:18px" data-close>Done</button>`, (root)=>{
+      root.querySelectorAll('[data-set]').forEach(b=>b.onclick=()=>{S.detail=b.dataset.set; closeSheet(); render();});
+      root.querySelectorAll('[data-fs]').forEach(b=>b.onclick=()=>{document.documentElement.style.setProperty('--fs',b.dataset.fs); closeSheet(); render();});
+    }); }
+}
+function getFs(){ return getComputedStyle(document.documentElement).getPropertyValue('--fs').trim()||'1'; }
+function choose(id,k){
+  const a=S.alerts.find(x=>x.id===id); const names={hold:'Hold',rebalance:'Rebalance',reduce:'Reduce risk'};
+  if(k==='hold'){
+    a.choice='Hold'; log('Held through the dip', a.headline, false);
+    sheet(`<div style="text-align:center"><div style="font-size:44px">🌱</div><h2 style="margin-top:8px">Holding. Good call for your plan.</h2><p class="small muted" style="margin-top:8px;line-height:1.5">Your savings plan keeps running. We’ll check in on Friday with a short update, so you don’t need to keep opening your broker app.</p><button class="btn primary" style="margin-top:18px" data-close>Close</button></div>`);
+    render(); return;
+  }
+  const amt = k==='rebalance'? a.trim : a.att.T*0.1;
+  const what = k==='rebalance'? `Sell ${eur(amt)} of ${a.topName} → buy diversified ETF` : `Sell ${eur(amt)} across holdings → buy money market ETF`;
+  confirmSheet(names[k], what, amt, ()=>{ a.choice=names[k]; render(); });
+}
+function confirmSheet(title, what, amt, done){
+  sheet(`<div class="eyebrow">Review before confirming</div><h2 style="margin-top:4px">${title}</h2>
+    <div class="card flat"><div class="small"><b style="color:var(--navy)">${what}</b></div><div class="divider"></div>
+    <div class="row between small"><span class="muted">Amount</span><b>${eur(amt)}</b></div>
+    <div class="row between small" style="margin-top:6px"><span class="muted">Estimated fee</span><b>€1.00</b></div>
+    <div class="row between small" style="margin-top:6px"><span class="muted">Possible tax on gains</span><b>check with broker</b></div>
+    <div class="row between small" style="margin-top:6px"><span class="muted">Executed via</span><b>Trade Republic</b></div></div>
+    <p class="xs muted" style="margin-top:10px">${S.trialMode?'Trial mode is on: this is a simulation, no real trade.':'Order is sent to your broker. You can undo within 24h.'}</p>
+    <button class="btn green" style="margin-top:12px" id="cfm">Confirm with one tap</button>
+    <button class="btn line" style="margin-top:8px" data-close>Not now</button>`, (root)=>{
+      $('#cfm',root).onclick=()=>{ closeSheet(); log(title, what+(S.trialMode?' (trial)':''), true); toast(`${title} ${S.trialMode?'simulated':'sent'}. Undo anytime in the next 24h.`,'✓'); done&&done(); };
+    });
+}
+function log(what,note,undo){ S.history.unshift({id:'h'+Date.now(), what, note, undo, time:new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}); }
+
+function bindBuilder(){
+  const upd=()=>{ const w=$('#rbWhen').value, t=$('#rbThr .chip.on')?.dataset.v||15, th=$('#rbThen');
+    $('#rbThrWrap').style.display = w==='stormy'?'none':'block';
+    const W={dd:`portfolio drawdown from peak ≥ ${t}%`, stormy:'market weather = Stormy (p ≥ 0.60)', stock:`one stock falls ≥ ${t}% in a day`}[w];
+    $('#rbPreview').innerHTML=`<b style="color:#4E9300">WHILE</b> rule is on:<br>&nbsp;&nbsp;<b style="color:#4E9300">IF</b> ${W}<br>&nbsp;&nbsp;<b style="color:#4E9300">THEN</b> ${th.options[th.selectedIndex].text.toLowerCase()}<br>&nbsp;&nbsp;<b style="color:#4E9300">AND</b> wait for my confirmation`; };
+  $('#rbWhen').onchange=upd; $('#rbThen').onchange=upd;
+  view.querySelectorAll('#rbThr .chip').forEach(c=>c.onclick=()=>{view.querySelectorAll('#rbThr .chip').forEach(x=>x.classList.remove('on')); c.classList.add('on'); upd();});
+  upd();
+}
+function saveRule(){
+  const w=$('#rbWhen').value, t=$('#rbThr .chip.on')?.dataset.v||15, th=$('#rbThen');
+  const W={dd:`my portfolio is down ${t}% from its peak`, stormy:'market weather is Stormy', stock:`a stock falls ${t}% in one day`}[w];
+  S.rules.push({id:'r'+Date.now(), name:'My rule '+(S.rules.length+1), on:true, when:w, then:th.value, desc:`IF ${W} THEN propose: ${th.options[th.selectedIndex].text.toLowerCase()}`});
+  S.sub=null; toast('Rule saved. It will always ask you first.','🛡'); render();
+}
+
+/* ==========================================================
+   SCENARIOS (presenter panel)
+   ========================================================== */
+let replayTimer=null;
+function computeWeather(){
+  const c=S.vix.close, i=c.length-1; const r=predict(featuresAt(c,S.vix.high,S.vix.low,i));
+  S.weather={p:r.p, contrib:r.contrib};
+}
+function nextBizDay(ds){ const d=new Date(ds+'T12:00:00Z'); do{ d.setUTCDate(d.getUTCDate()+1); }while(d.getUTCDay()===0||d.getUTCDay()===6); return d.toISOString().slice(0,10); }
+function pushVix(days){ days.forEach(([h,l,c])=>{S.vix.dates.push(nextBizDay(S.vix.dates.at(-1)));S.vix.high.push(h);S.vix.low.push(l);S.vix.close.push(c);}); computeWeather(); }
+function resetMarket(){ clearInterval(replayTimer); S.vix={close:[...VIX.recent.close], high:[...VIX.recent.high], low:[...VIX.recent.low], dates:[...VIX.recent.dates]}; S.holdings=JSON.parse(JSON.stringify(S.base)); S.dayMove=S.custom?0:0.004; computeWeather(); }
+function applyMoves(att, sc){ S.holdings.forEach(h=>{ const local=sc.local[h.id]??sc.market*h.beta; h.value=Math.round(h.value*(1+local+h.usd*sc.fx)); }); S.dayMove=att.total; }
+function makeAlert(sc, kind){
+  const att=attribute(sc); applyMoves(att, sc); computeWeather();
+  const rec=recommend(att); const ex=exposure();
+  const trim=Math.max(0, Math.round((ex.top.share-S.concLimit)*ex.T));
+  const a={id:'a'+Date.now(), time:'Just now', kind, att, rec, trim, topName:ex.top.name, read:false, ...sc.text(att,ex)};
+  S.alerts.unshift(a); S.unread++;
+  return a;
+}
+function ensureOnboarded(){ if(!S.onboarded){ S.onboarded=true; S.profile.horizon=S.profile.horizon||'5+'; S.profile.reaction=S.profile.reaction||'call'; S.profile.brokers=S.profile.brokers.length?S.profile.brokers:['tr','rev']; } }
+function scenario(k){
+  document.querySelectorAll('.scn').forEach(b=>b.classList.toggle('active', b.dataset.scn===k));
+  closeSheet();
+  if(k==='reset'){ resetMarket(); Object.assign(S,{onboarded:false,obStep:0,alerts:[],unread:0,proposals:[],history:[],sub:null,tab:'home'}); S.profile={horizon:null,reaction:null,brokers:[],name:'Lena'}; S.base=JSON.parse(JSON.stringify(PORTFOLIO)); S.custom=false; S.draft={}; S.holdings=JSON.parse(JSON.stringify(PORTFOLIO)); S.dayMove=0.004; render(); return; }
+  ensureOnboarded(); resetMarket();
+  if(k==='normal'){ S.tab='home'; S.sub=null; render(); toast(`Market weather: ${BAND[band(S.weather.p)].label}. Model says ${S.weather.p<0.01?'under 1':(S.weather.p*100).toFixed(0)}% storm chance.`,'☀'); return; }
+  if(k==='tech'){
+    pushVix([[17.8,15.1,17.2],[19.6,17.0,19.1],[21.4,18.6,20.4]]);
+    const a=makeAlert({market:-0.024, fx:-0.006, local:{nvda:-0.095, aapl:-0.061, tsla:-0.082, itx:-0.008, xmme:-0.015, btc:-0.03},
+      text:(att,ex)=>{ const stocks=att.per.filter(x=>x.h.type!=='ETF'); const w=stocks.length?stocks[0]:att.per[0]; const share=Math.max(0,Math.round(w.eurMove/att.eurTotal*100)); return {title:`Down ${eur(Math.abs(att.eurTotal))} this week. Here’s why`, sub:`${share}% of the drop came from ${w.h.short}`,
+        headline:`Your portfolio fell ${pc(att.total)}. ${share}% of that came from ${w.h.short}.`,
+        explain:`The whole market slipped ${pc(-0.024)} after weaker chip-demand news. Tech stocks fell harder: ${w.h.short} moved ${pc(w.ret)}. Your biggest single name, ${ex.top.name}, is ${(ex.top.share*100).toFixed(0)}% of your money (counting what sits inside your ETFs). Broad ETFs moved about as much as the market, which is normal.`,
+        sources:'Holdings: your brokers (read-only, demo) · Prices: exchange close · FX: ECB reference rate · Market weather: Vymera model on CBOE VIX', lesson:'conc'}; }}, 'Explained alert');
+    S.tab='alerts'; S.sub=null; render(); toast(a.title,'V', ()=>act('openAlert',{id:a.id})); return;
+  }
+  if(k==='fx'){
+    pushVix([[15.6,14.0,15.2]]);
+    const a=makeAlert({market:-0.002, fx:-0.03, local:{nvda:0.004, itx:0.006, xmme:-0.001},
+      text:(att,ex)=>({title:`Down ${eur(Math.abs(att.eurTotal))}, but your stocks didn’t fall`, sub:`The US dollar weakened against the euro`,
+        headline:`Your portfolio fell ${pc(att.total)}. Your companies are fine: it’s the dollar.`,
+        explain:`Prices of your holdings barely moved. But ${(ex.usd*100).toFixed(0)}% of your money is in US dollars, and the dollar lost 3% against the euro. In euros, the same shares are now worth a bit less. If the dollar recovers, so does this part.`,
+        sources:'FX: ECB euro reference rates · Holdings: Trade Republic & Revolut (read-only, demo)', lesson:'fx'})}, 'Explained alert');
+    S.tab='alerts'; S.sub=null; render(); toast(a.title,'V', ()=>act('openAlert',{id:a.id})); return;
+  }
+  if(k==='tariff'){ replayTariff(); return; }
+  if(k==='hype'){ hype(); return; }
+}
+function replayTariff(){
+  const d=VIX.tariff_2025; let i=d.dates.indexOf('2025-02-14'); const end=d.dates.indexOf('2025-04-10');
+  S.vix={close:d.close.slice(0,i), high:d.high.slice(0,i), low:d.low.slice(0,i), dates:d.dates.slice(0,i)};
+  computeWeather(); S.tab='home'; S.sub=null; render();
+  toast('Replaying real VIX data: Feb–Apr 2025','▶');
+  let fired=false;
+  replayTimer=setInterval(()=>{            // WHILE the replay runs: one trading day per tick
+    if(i>end){ clearInterval(replayTimer); return; }
+    S.vix.close.push(d.close[i]); S.vix.high.push(d.high[i]); S.vix.low.push(d.low[i]); S.vix.dates.push(d.dates[i]);
+    const today=i; i++;
+    computeWeather();
+    if(S.tab==='home' && !S.sub){ const knob=$('.knob'); if(knob){ render(); } }
+    const rule=S.rules.find(r=>r.when==='stormy');
+    if(!fired && rule.on && !S.paused && band(S.weather.p)==='stormy'){   // IF rule condition met → propose
+      fired=true; clearInterval(replayTimer);
+      const ex=exposure();
+      const p={id:'p'+Date.now(), rule:rule.name, status:'pending', date:d.dates[today], vix:d.close[today], prob:S.weather.p,
+        amount:Math.round(ex.T*0.10), summary:`Market weather turned Stormy (${(S.weather.p*100).toFixed(0)}%). Proposal: move ${eur(Math.round(ex.T*0.10))} into a money market ETF.`};
+      S.proposals.unshift(p);
+      render();
+      toast(`“${rule.name}” triggered on ${d.dates[today]}. Tap to review.`,'🛡', ()=>openProposal(p.id));
+    }
+  }, 140);
+}
+function openProposal(id){
+  const p=S.proposals.find(x=>x.id===id); const ex=exposure();
+  sheet(`<div class="eyebrow">Rule triggered · ${p.date}</div><h2 style="margin-top:4px">${p.rule}: your OK needed</h2>
+    <div class="quote"><b>Why now:</b> the fear index (VIX) jumped to ${p.vix.toFixed(1)} and our model gives a ${(p.prob*100).toFixed(0)}% chance of a stormy two weeks. Your portfolio moves ${ex.beta.toFixed(2)}× the market, so a 10% market drop could mean about ${eur(ex.T*0.1*ex.beta)} for you.</div>
+    <div class="card flat"><div class="small"><b style="color:var(--navy)">You set this rule on a calm day:</b><div class="code" style="margin-top:6px">IF market weather is Stormy<br>THEN propose moving 10% into a money market ETF</div></div>
+    <div class="divider"></div><div class="row between small"><span class="muted">Move</span><b>${eur(p.amount)} → money market ETF</b></div><div class="row between small" style="margin-top:6px"><span class="muted">Fee / tax</span><b>~€1 · possible tax on gains</b></div><div class="row between small" style="margin-top:6px"><span class="muted">Expires</span><b>in 24h if you do nothing</b></div></div>
+    <button class="btn green" style="margin-top:12px" id="pOk">Confirm with one tap</button>
+    <div class="row" style="gap:8px;margin-top:8px"><button class="btn line" id="pNo">Not now</button><button class="btn line" id="pPause">Pause rule</button></div>
+    <p class="xs muted" style="margin-top:10px;text-align:center">${S.trialMode?'Trial mode: simulated, no real trade.':'Undo possible for 24h.'}</p>`, (root)=>{
+      $('#pOk',root).onclick=()=>{ p.status='done'; closeSheet(); log('Calm shield confirmed', `${eur(p.amount)} → money market ETF${S.trialMode?' (trial)':''}`, true); toast('Done. 10% is now in a calm place. Undo within 24h.','✓'); render(); };
+      $('#pNo',root).onclick=()=>{ p.status='declined'; closeSheet(); log('Proposal declined','You chose to hold. Rule stays on.',false); render(); };
+      $('#pPause',root).onclick=()=>{ p.status='declined'; S.rules.find(r=>r.when==='stormy').on=false; closeSheet(); toast('Calm shield paused.','⏸'); render(); };
+    });
+}
+function hype(){
+  S.tab='home'; S.sub=null; render();
+  const ex=exposure(), buy=200, after=(ex.nvda*ex.T+buy)/(ex.T+buy);
+  sheet(`<div class="row" style="gap:10px"><div class="logo" style="background:#000">TR</div><div><div class="eyebrow">Trade Republic · buy order</div><b style="color:var(--navy)">Buy ${eur(buy)} of Nvidia</b></div></div>
+    <div class="card" style="background:var(--amber-l);box-shadow:none"><b style="color:#A8620B">Vymera cool-off · your rule “Hype cool-off”</b>
+    <p class="small" style="margin-top:6px;line-height:1.5">Nvidia is trending on TikTok this week. Before you buy:</p>
+    <ul class="small" style="margin:6px 0 0 18px;line-height:1.6"><li>It’s already <b>${(ex.nvda*100).toFixed(0)}%</b> of your money. After this: <b>${(after*100).toFixed(0)}%</b> (your limit: ${(S.concLimit*100).toFixed(0)}%).</li><li>Stocks bought on hype in our interviews were sold at −18% and −€150.</li><li>Your MSCI World ETF already owns Nvidia.</li></ul></div>
+    <div class="countdown" id="cd">10</div><p class="xs muted" style="text-align:center;margin-top:-6px">Take ten seconds. You can still buy if you want.</p>
+    <button class="btn green" style="margin-top:12px" id="hWait">Remind me in 24h</button>
+    <div class="row" style="gap:8px;margin-top:8px"><button class="btn line" id="hSmall">Buy €50 instead</button><button class="btn line" id="hBuy" disabled>Buy anyway</button></div>`, (root)=>{
+      let s=10; const cd=$('#cd',root);
+      const t=setInterval(()=>{ s--; if(cd) cd.textContent=s; if(s<=0){ clearInterval(t); cd.textContent='✓'; $('#hBuy',root).disabled=false; } },1000);   // WHILE timer > 0, "Buy anyway" stays disabled
+      $('#hWait',root).onclick=()=>{clearInterval(t); closeSheet(); log('Hype buy postponed','Reminder set for tomorrow · €200 Nvidia',false); toast('We’ll remind you tomorrow. Most hype fades in a day.','⏳');};
+      $('#hSmall',root).onclick=()=>{clearInterval(t); closeSheet(); log('Smaller buy','€50 Nvidia instead of €200',false); toast('Smaller buy sent to Trade Republic (demo).','✓');};
+      $('#hBuy',root).onclick=()=>{clearInterval(t); closeSheet(); log('Bought anyway','€200 Nvidia · your call',false); toast('Order sent (demo). We added it to your log.','✓');};
+    });
+}
+
+/* ==========================================================
+   UI helpers
+   ========================================================== */
+function sheet(html, bind){ const o=$('#overlay'); o.innerHTML=`<div class="sheet-bg" id="sbg"><div class="sheet" role="dialog"><div class="grab"></div>${html}</div></div>`;
+  $('#sbg').onclick=(e)=>{ if(e.target.id==='sbg') closeSheet(); };
+  o.querySelectorAll('[data-close]').forEach(b=>b.onclick=closeSheet);
+  bind&&bind(o); }
+function closeSheet(){ $('#overlay').innerHTML=''; }
+let toastT=null;
+function toast(msg, ic='V', onClick){ const s=$('#screen'); s.querySelector('.toast')?.remove(); const t=document.createElement('div'); t.className='toast'; t.innerHTML=`<div class="ic">${ic}</div><div class="small"><b>Vymera</b><div style="opacity:.85">${msg}</div></div>`; s.appendChild(t);
+  t.onclick=()=>{t.remove(); onClick&&onClick();}; clearTimeout(toastT); toastT=setTimeout(()=>t.remove(), 4200); }
+function updateModelInfo(){
+  if(!S.weather) return;
+  const f=featuresAt(S.vix.close,S.vix.high,S.vix.low,S.vix.close.length-1);
+  $('#modelInfo').innerHTML=`date&nbsp;&nbsp;&nbsp;&nbsp;${S.vix.dates.at(-1)}<br>VIX&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${f.vix.toFixed(2)}<br>vs MA20&nbsp;${f.ratio_ma20.toFixed(2)}<br>5d chg&nbsp;&nbsp;${pc(f.chg_5d)}<br>p(storm) <b>${(S.weather.p*100).toFixed(1)}%</b> → <b>${BAND[band(S.weather.p)].label}</b><br><span style="opacity:.6">logistic regression · 10 features<br>test AUC ${MODEL.test_auc} (2019–2026)</span>`;
+}
+
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{S.tab=t.dataset.tab; S.sub=null; render();});
+document.querySelectorAll('.scn').forEach(b=>b.onclick=()=>{ scenario(b.dataset.scn); $('#panel').classList.remove('open'); });
+$('#panelToggle').onclick=()=>$('#panel').classList.toggle('open');
+computeWeather(); render(); updateModelInfo();
+</script>
+</body>
+</html>

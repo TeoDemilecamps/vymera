@@ -1,0 +1,50 @@
+{
+  "target": "VIX close >= 25.0 at least once in next 10 trading days",
+  "train_period": "1990-12-28 to 2015-12-31 (6299 days)",
+  "valid_period": "2016-01-04 to 2018-12-31 (754 days)",
+  "test_period": "2019-01-02 to 2026-09-08 (1964 days)",
+  "test_base_rate": 0.298,
+  "storm_onset_days_in_test": 253,
+  "decision_threshold": 0.5,
+  "models": {
+    "Naive baseline (VIX >= 25 today)": {
+      "roc_auc": 0.776,
+      "precision": 0.941,
+      "recall": 0.568,
+      "f1": 0.708,
+      "brier": 0.14,
+      "tp": 332,
+      "fp": 21,
+      "fn": 253,
+      "tn": 1358,
+      "early_warning_recall": 0.0,
+      "false_alarm_rate_calm_days": 0.0
+    },
+    "Logistic regression": {
+      "roc_auc": 0.907,
+      "precision": 0.825,
+      "recall": 0.703,
+      "f1": 0.759,
+      "brier": 0.101,
+      "tp": 411,
+      "fp": 87,
+      "fn": 174,
+      "tn": 1292,
+      "early_warning_recall": 0.312,
+      "false_alarm_rate_calm_days": 0.049
+    },
+    "Gradient boosting": {
+      "roc_auc": 0.898,
+      "precision": 0.828,
+      "recall": 0.675,
+      "f1": 0.744,
+      "brier": 0.106,
+      "tp": 395,
+      "fp": 82,
+      "fn": 190,
+      "tn": 1297,
+      "early_warning_recall": 0.249,
+      "false_alarm_rate_calm_days": 0.045
+    }
+  }
+}
